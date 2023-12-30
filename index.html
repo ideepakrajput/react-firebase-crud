@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <title>Kashish Bhatia - Tennis Player</title>
+  <style>
+    .label {
+      font-weight: bold;
+    }
+
+    .nested {
+      margin-left: 20px;
+    }
+
+    img {
+      width: 100px;
+      height: 100px;
+    }
+  </style>
+</head>
+
+<body>
+  <div id="playerInfo"></div>
+  <p id="compaign_name" hidden>Journey to the Top of Women's Lawn Tennis</p>
+  <script>
+    // Function to fetch data from the API
+    function fetchData() {
+      // Replace 'YOUR_API_ENDPOINT' with the actual API endpoint URL
+      const compaign_name = document.getElementById("compaign_name").textContent;
+      fetch(`https://unionsports-default-rtdb.firebaseio.com/compaign/${compaign_name}.json`)
+        .then((response) => response.json())
+        .then((data) => {
+          const container = document.getElementById('playerInfo');
+          createContent(data, container);
+        })
+        .catch((error) => {
+          console.error("Error fetching data:", error);
+        });
+    }
+
+    function createContent(data, container, depth = 0) {
+      for (const key in data) {
+        if (Object.hasOwnProperty.call(data, key)) {
+          const label = document.createElement('span');
+          label.textContent = key + ': ';
+          label.classList.add('label');
+          container.appendChild(label);
+
+          if (key === 'imageVideoG' || key === 'trainingIA') {
+            container.appendChild(document.createElement('br'));
+            data[key].forEach((item, index) => {
+              if (item.href !== '' || item.logo !== '') {
+                if (item.href !== '') {
+                  const image = document.createElement('img');
+                  image.src = item.href;
+                  image.alt = 'Image ' + index;
+                  container.appendChild(image);
+                  container.appendChild(document.createElement('br'));
+                }
+                if (item.logo !== '') {
+                  const logo = document.createElement('img');
+                  logo.src = item.logo;
+                  logo.alt = 'Logo ' + index;
+                  container.appendChild(logo);
+                  container.appendChild(document.createElement('br'));
+                }
+              }
+            });
+          } else if (typeof data[key] === 'object') {
+            container.appendChild(document.createElement('br'));
+            createContent(data[key], container, depth + 1);
+          } else {
+            const value = document.createElement('span');
+            value.textContent = data[key];
+            container.appendChild(value);
+            container.appendChild(document.createElement('br'));
+          }
+        }
+      }
+    }
+    // Call the fetchData function when the page loads
+    window.onload = fetchData;
+  </script>
+</body>
+
+</html>
